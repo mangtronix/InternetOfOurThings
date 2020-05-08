@@ -9,6 +9,7 @@
    https://michaelang.com
 
    Instructions:
+     - connect a servo to Pin 18 of the Arduino
      - set the ssid and password of your wifi network
      - open the Serial Monitor (Tools -> Serial Monitor) and set 115200 baud
      - compile and upload code (Sketch -> Upload)

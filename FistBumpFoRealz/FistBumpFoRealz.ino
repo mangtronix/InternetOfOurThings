@@ -20,7 +20,7 @@
    To make the Arduino accessible from the Internet:
      - Sign up for ngrok - https://ngrok.com/
      - Download ngrok client
-     - Add your ngrok authentication token - https://dashboard.ngrok.com/get-started/setup
+     - Add your ngrok authentimcation token - https://dashboard.ngrok.com/get-started/setup
      - Start the ngrok tunnel to the Arduino using the local IP address / port the Arduino is listening on.
        The local IP address and port is output on the Serial Monitor, and it's also in the URL (http://ipaddress:port)
 
@@ -52,10 +52,10 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 
+char* ssid = "YOUR_WIFI_NAME";
+char* password = "YOUR_WIFI_PASSWORD";
 
-const char* ssid = "YOUR_WIFI_NAME";
-const char* password = "YOUR_WIFI_PASSWORD";
-int port = 8080;
+int port = 80;
 WebServer server(port);
 
 #include <ESP32Servo.h>
@@ -133,12 +133,13 @@ void setup(void) {
   Serial.println(WiFi.localIP());
   Serial.print("Port: ");
   Serial.println(port);
+  Serial.print("URL: ");
   Serial.print("http://");
   Serial.print(WiFi.localIP());
   Serial.print(":");
   Serial.println(port);
 
-  if (MDNS.begin("esp32")) {
+  if (MDNS.begin("fistbump")) {
     Serial.println("MDNS responder started");
   }
 
@@ -152,6 +153,13 @@ void setup(void) {
 
   server.begin();
   Serial.println("HTTP server started");
+
+  // Add service to MDNS / Bonjour
+  // If you're lucky the Arduino will be accessible at http://fistbump.local
+  MDNS.addService("http", "tcp", port);
+  Serial.print("Added local service at http://fistbump.local:");
+  Serial.println(port);
+  
 }
 
 void loop(void) {

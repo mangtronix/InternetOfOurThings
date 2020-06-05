@@ -6,15 +6,18 @@ var client = mqtt.connect('mqtt://fistbumper:bumpitup@broker.shiftr.io', {
 var bumpTopic = "/fistbump";
 var bumpMessage = "bump";
 
+var queryTopic = "/bumpquery";
+var replyTopic = "/bumpreply";
+
 client.on('connect', function(){
   console.log('client has connected!');
 
-  client.subscribe('/example');
+  client.subscribe('/bumpreply');
   // client.unsubscribe('/example');
 
   setInterval(function(){
-    client.publish('/hello', 'world');
-  }, 1000);
+    sendQuery("areyouthere");
+  }, 2000);
 });
 
 client.on('message', function(topic, message) {
@@ -22,7 +25,17 @@ client.on('message', function(topic, message) {
 });
 
 $('#send_bump').on('click', function (e) {
-    console.log("Sending bump");
-    client.publish(bumpTopic, bumpMessage);
+    sendBump();
 })
 
+function sendBump()
+{
+    console.log("Sending bump");
+    client.publish(bumpTopic, bumpMessage);
+}
+
+function sendQuery(message)
+{
+    console.log("Sending query - " + message);
+    client.publish(queryTopic, message);
+}

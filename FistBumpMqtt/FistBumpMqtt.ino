@@ -66,6 +66,10 @@ const char wifiInitialApPassword[] = "fistbumper";
 // This is the MQTT topic we listen for
 const char bumpTopic[] = "/fistbump";
 
+// If we hear this, reply that we're online
+const char bumpQueryTopic[] = "/bumpquery";
+const char bumpReplyTopic[] = "/bumpreply";
+
 #define STRING_LEN 128
 
 // -- Configuration specific key. The value should be modified if config structure was changed.
@@ -261,6 +265,10 @@ boolean connectMqtt() {
   Serial.print("Subscribing to ");
   Serial.println(bumpTopic);
   mqttClient.subscribe(bumpTopic);
+
+  Serial.print("Subscribing to ");
+  Serial.println(bumpQueryTopic);
+  mqttClient.subscribe(bumpQueryTopic);
   
   return true;
 }
@@ -305,6 +313,10 @@ void mqttMessageReceived(String &topic, String &payload)
     // TODO send the device id in the message, check for it here
     Serial.println("Fistbump!");
     fistBump();
+    sendReply("bumped");
+  } else if (topic.equals(bumpQueryTopic)) {
+    Serial.println("Sending reply to search");
+    sendReply("here");
   }
 }
 
@@ -324,4 +336,9 @@ void fistBump(void)
     myservo.write(pos);    // tell servo to go to position in variable 'pos'
     delay(15);             // waits 15ms for the servo to reach the position
   }
+}
+
+void sendReply(String message)
+{
+  mqttClient.publish(bumpReplyTopic, message);
 }

@@ -1,4 +1,10 @@
 /**
+ * Fist bump fo realz
+ * 
+ * Modifications cpyright (c) 2020 Michael Ang <contactmang@gmail.com>
+ */
+
+/**
  * IotWebConf06MqttApp.ino -- IotWebConf is an ESP8266/ESP32
  *   non blocking WiFi/AP web configuration library for Arduino.
  *   https://github.com/prampec/IotWebConf 
@@ -39,11 +45,21 @@
 #include <MQTT.h>
 #include <IotWebConf.h>
 
+#include <ESP32Servo.h>
+
+Servo myservo;  // create servo object to control a servo
+int pos = 0;    // variable to store the servo position
+// Recommended PWM GPIO pins on the ESP32 include 2,4,12-19,21-23,25-27,32-33
+int servoPin = 18;
+
 // -- Initial name of the Thing. Used e.g. as SSID of the own Access Point.
 const char thingName[] = "FistBump";
 
 // -- Initial password to connect to the Thing, when it creates an own Access Point.conne
 const char wifiInitialApPassword[] = "fistbumper";
+
+// This is the MQTT topic we listen for
+const char bumpTopic[] = "/fistbump";
 
 #define STRING_LEN 128
 
@@ -90,7 +106,10 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Starting up...");
+  Serial.println("Fist Bump starting up...");
+
+  Serial.println("Setting up servo");
+  setupServo();
 
   iotWebConf.setStatusPin(STATUS_PIN);
   iotWebConf.setConfigPin(CONFIG_PIN);
@@ -120,6 +139,15 @@ void setup()
   mqttClient.onMessage(mqttMessageReceived);
   
   Serial.println("Ready.");
+}
+
+void setupServo()
+{
+  myservo.setPeriodHertz(50);    // standard 50 hz servo
+  myservo.attach(servoPin, 1000, 2000); // attaches the servo on pin 18 to the servo object
+  // using default min/max of 1000us and 2000us
+  // different servos may require different min/max settings
+  // for an accurate 0 to 180 sweep
 }
 
 void loop() 
@@ -223,6 +251,12 @@ boolean connectMqtt() {
   Serial.println("Connected!");
 
   mqttClient.subscribe("/test/action");
+
+  // Subscribe for fist bumps!
+  Serial.print("Subscribing to ");
+  Serial.println(bumpTopic);
+  mqttClient.subscribe(bumpTopic);
+  
   return true;
 }
 
@@ -261,4 +295,28 @@ boolean connectMqttOptions()
 void mqttMessageReceived(String &topic, String &payload)
 {
   Serial.println("Incoming: " + topic + " - " + payload);
+
+  if (topic.equals(bumpTopic)) {
+    // TODO send the device id in the message, check for it here
+    Serial.println("Fistbump!");
+    fistBump();
+  }
+}
+
+void fistBump(void)
+{
+  /*
+     This code moves the servo. On my servo (HXT900) this sweeps the servo through 90 degrees.
+     See the original Examples -> ESP32Servo -> Sweep code for some reasons this might be.
+  */
+
+  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);    // tell servo to go to position in variable 'pos'
+    delay(15);             // waits 15ms for the servo to reach the position
+  }
+  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);    // tell servo to go to position in variable 'pos'
+    delay(15);             // waits 15ms for the servo to reach the position
+  }
 }

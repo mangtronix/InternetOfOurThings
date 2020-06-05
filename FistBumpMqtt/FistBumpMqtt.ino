@@ -1,7 +1,12 @@
 /**
  * Fist bump fo realz
  * 
- * Modifications cpyright (c) 2020 Michael Ang <contactmang@gmail.com>
+ * Modifications copyright (c) 2020 Michael Ang <contactmang@gmail.com>
+ * 
+ * Requirements:
+ * - IotWebConf library
+ * - MQTT library
+ * - servo on pin 18
  */
 
 /**

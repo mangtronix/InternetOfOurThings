@@ -1,5 +1,5 @@
 
-var client = mqtt.connect('mqtt://fistbumper:bumpitup@broker.shiftr.io', {
+var client = mqtt.connect('mqtts://fistbumper:bumpitup@broker.shiftr.io', {
   clientId: 'javascript'
 });
 

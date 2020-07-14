@@ -32,4 +32,4 @@
 *.app
 
 # OSX
-._DS_STORE
+.DS_STORE
